@@ -557,44 +557,44 @@ class SOAPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             else:
                 self.connection.shutdown(1)
 
-        def do_GET(self):
+    def do_GET(self):
 
-            #print 'command        ', self.command
-            #print 'path           ', self.path
-            #print 'request_version', self.request_version
-            #print 'headers'
-            #print '   type    ', self.headers.type
-            #print '   maintype', self.headers.maintype
-            #print '   subtype ', self.headers.subtype
-            #print '   params  ', self.headers.plist
+        #print 'command        ', self.command
+        #print 'path           ', self.path
+        #print 'request_version', self.request_version
+        #print 'headers'
+        #print '   type    ', self.headers.type
+        #print '   maintype', self.headers.maintype
+        #print '   subtype ', self.headers.subtype
+        #print '   params  ', self.headers.plist
 
-            path = self.path.lower()
-            if path.endswith('wsdl'):
-                method = 'wsdl'
-                function = namespace = None
-                if self.server.funcmap.has_key(namespace) \
-                        and self.server.funcmap[namespace].has_key(method):
-                    function = self.server.funcmap[namespace][method]
-                else:
-                    if namespace in self.server.objmap.keys():
-                        function = self.server.objmap[namespace]
-                        l = method.split(".")
-                        for i in l:
-                            function = getattr(function, i)
+        path = self.path.lower()
+        if path.endswith('wsdl'):
+            method = 'wsdl'
+            function = namespace = None
+            if self.server.funcmap.has_key(namespace) \
+                    and self.server.funcmap[namespace].has_key(method):
+                function = self.server.funcmap[namespace][method]
+            else:
+                if namespace in self.server.objmap.keys():
+                    function = self.server.objmap[namespace]
+                    l = method.split(".")
+                    for i in l:
+                        function = getattr(function, i)
 
-                if function:
-                    self.send_response(200)
-                    self.send_header("Content-type", 'text/plain')
-                    self.end_headers()
-                    response = apply(function, ())
-                    self.wfile.write(str(response))
-                    return
+            if function:
+                self.send_response(200)
+                self.send_header("Content-type", 'text/plain')
+                self.end_headers()
+                response = apply(function, ())
+                self.wfile.write(str(response))
+                return
 
-            # return error
-            self.send_response(200)
-            self.send_header("Content-type", 'text/html')
-            self.end_headers()
-            self.wfile.write('''\
+        # return error
+        self.send_response(200)
+        self.send_header("Content-type", 'text/html')
+        self.end_headers()
+        self.wfile.write('''\
 <title>
 <head>Error!</head>
 </title>
